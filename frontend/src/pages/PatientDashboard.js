@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
-import {
-  FaBell,
-  FaUserCircle,
-  FaCog,
-  FaCalendarAlt,
-} from "react-icons/fa";
+import { FaBell, FaUserCircle, FaCog, FaCalendarAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function PatientDashboard() {
   const [appointments, setAppointments] = useState([]);
@@ -16,6 +12,23 @@ function PatientDashboard() {
   const [filter, setFilter] = useState("All");
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/"); // login page
+  };
+
+  const getDisplayName = () => {
+    if (user.role === "doctor") {
+      if (user.name.toLowerCase().startsWith("dr")) {
+        return user.name;
+      }
+      return "Dr. " + user.name;
+    }
+    return user.name;
+  };
 
   // Date
   const formatDate = (date) => {
@@ -53,11 +66,11 @@ function PatientDashboard() {
 
   // Filters
   const historyAppointments = appointments.filter(
-    (a) => a.status === "confirmed" || a.status === "rejected"
+    (a) => a.status === "confirmed" || a.status === "rejected",
   );
 
   const upcomingAppointments = appointments.filter(
-    (a) => a.status === "pending"
+    (a) => a.status === "pending",
   );
 
   // book appointment
@@ -111,18 +124,28 @@ function PatientDashboard() {
           </h2>
         </div>
 
-        <div className="flex gap-4 text-gray-600 text-lg">
+        <div className="flex items-center gap-4 text-gray-600 text-lg">
           <FaBell />
           <FaCog />
-          <FaUserCircle className="text-2xl" />
+
+          <div className="flex items-center gap-2">
+            <FaUserCircle className="text-2xl" />
+            {getDisplayName()}
+          </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg"
+          >
+            Logout
+          </button>
         </div>
       </div>
 
       {/* WELCOME */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-300 text-white mt-4 p-5 rounded-xl shadow">
-        <h2 className="text-xl font-semibold">
-          Welcome, {user?.name} 👋
-        </h2>
+        <h2 className="text-xl font-semibold">Welcome, {user?.name} 👋</h2>
       </div>
 
       {/* STATS */}
@@ -191,7 +214,17 @@ function PatientDashboard() {
         {/* Time Slots */}
         <h3 className="font-semibold mb-3">Available Time Slots</h3>
         <div className="grid grid-cols-3 gap-3 mb-3">
-          {["11:00", "12:00", "13:00", "15:00", "16:00", "17:00","18:00", "19:00", "20:00"].map((t) => (
+          {[
+            "11:00",
+            "12:00",
+            "13:00",
+            "15:00",
+            "16:00",
+            "17:00",
+            "18:00",
+            "19:00",
+            "20:00",
+          ].map((t) => (
             <button
               key={t}
               onClick={() => setTime(t)}
@@ -267,9 +300,7 @@ function PatientDashboard() {
         <h3 className="font-semibold mb-3">Appointment History</h3>
 
         {historyAppointments.length === 0 ? (
-          <p className="text-gray-500 text-center py-3">
-            No history available
-          </p>
+          <p className="text-gray-500 text-center py-3">No history available</p>
         ) : (
           <table className="w-full text-left">
             <thead>
@@ -297,9 +328,7 @@ function PatientDashboard() {
                   <td className="p-2">
                     <span
                       className={`px-3 py-1 rounded-full text-white ${
-                        a.status === "confirmed"
-                          ? "bg-green-500"
-                          : "bg-red-500"
+                        a.status === "confirmed" ? "bg-green-500" : "bg-red-500"
                       }`}
                     >
                       {a.status}

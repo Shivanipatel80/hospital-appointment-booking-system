@@ -14,7 +14,7 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      // ✅ ONLY ONE API CALL
+      //  ONLY ONE API CALL
       const res = await API.post("/auth/login", {
         email,
         password,

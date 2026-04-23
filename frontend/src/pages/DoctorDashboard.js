@@ -1,21 +1,29 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
 import { FaBell, FaUserMd } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function DoctorDashboard() {
   const [appointments, setAppointments] = useState([]);
-  
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/"); // login page
+  };
+
   const getDisplayName = () => {
-  if (user.role === "doctor") {
-    if (user.name.toLowerCase().startsWith("dr")) {
-      return user.name;
+    if (user.role === "doctor") {
+      if (user.name.toLowerCase().startsWith("dr")) {
+        return user.name;
+      }
+      return "Dr. " + user.name;
     }
-    return "Dr. " + user.name;
-  }
-  return user.name;
-};
+    return user.name;
+  };
 
   // fetch appointments
   const fetchAppointments = async () => {
@@ -57,7 +65,6 @@ function DoctorDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-
       {/* HEADER */}
       <div className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center">
         <h2 className="font-bold text-green-600">
@@ -70,6 +77,13 @@ function DoctorDashboard() {
             <FaUserMd />
             {user?.name}
           </div>
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg"
+          >
+            Logout
+          </button>
         </div>
       </div>
 
@@ -95,7 +109,7 @@ function DoctorDashboard() {
         <div className="bg-green-600 text-white p-4 rounded-xl shadow-md">
           <h3>Pending Requests</h3>
           <p className="text-2xl font-bold">
-            {appointments.filter(a => a.status === "pending").length}
+            {appointments.filter((a) => a.status === "pending").length}
           </p>
         </div>
       </div>
@@ -120,7 +134,6 @@ function DoctorDashboard() {
             <tbody>
               {todayAppointments.map((a) => (
                 <tr key={a._id} className="border-b hover:bg-gray-50">
-
                   <td className="p-3 flex items-center gap-2">
                     <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center">
                       {a.patient?.name?.charAt(0)}
@@ -131,13 +144,15 @@ function DoctorDashboard() {
                   <td className="p-3 ">{a.time}</td>
 
                   <td className="p-3">
-                    <span className={`px-3 py-1 rounded-full text-sm ${
-                      a.status === "confirmed"
-                        ? "bg-green-100 text-green-700"
-                        : a.status === "rejected"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        a.status === "confirmed"
+                          ? "bg-green-100 text-green-700"
+                          : a.status === "rejected"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
                       {a.status}
                     </span>
                   </td>
@@ -161,7 +176,6 @@ function DoctorDashboard() {
                       </>
                     )}
                   </td>
-
                 </tr>
               ))}
             </tbody>
@@ -189,7 +203,6 @@ function DoctorDashboard() {
             <tbody>
               {upcomingAppointments.map((a) => (
                 <tr key={a._id} className="border-b hover:bg-gray-50">
-
                   <td className="p-3 flex items-center gap-2">
                     <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center">
                       {a.patient?.name?.charAt(0)}
@@ -204,24 +217,24 @@ function DoctorDashboard() {
                   <td className="p-3">{a.time}</td>
 
                   <td className="p-3">
-                    <span className={`px-3 py-1 rounded-full text-sm ${
-                      a.status === "confirmed"
-                        ? "bg-green-100 text-green-700"
-                        : a.status === "rejected"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        a.status === "confirmed"
+                          ? "bg-green-100 text-green-700"
+                          : a.status === "rejected"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
                       {a.status}
                     </span>
                   </td>
-
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
-
     </div>
   );
 }

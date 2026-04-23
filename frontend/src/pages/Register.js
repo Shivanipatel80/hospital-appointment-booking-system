@@ -9,13 +9,13 @@ function Register() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("patient");
   const [showPassword, setShowPassword] = useState(false);
-  const [specialist, setSpecialist] = useState("");
+  const [specialization, setSpecialization] = useState("");
 
   const navigate = useNavigate();
 
   const handleRegister = async () => {
-    if (role === "doctor" && !specialist) {
-      alert("Please select specialist");
+    if (role === "doctor" && !specialization) {
+      alert("Please select specialization");
       return;
     }
 
@@ -26,7 +26,7 @@ function Register() {
         email,
         password,
         role,
-        specialist,
+        specialization: role === "doctor" ? specialization : undefined,
       });
 
       // Auto login
@@ -99,10 +99,10 @@ function Register() {
 
         {role === "doctor" && (
           <select
-            onChange={(e) => setSpecialist(e.target.value)}
+            onChange={(e) => setSpecialization(e.target.value)}
             className="w-full p-2 mb-3 border rounded"
           >
-            <option value="">Select Specialist</option>
+            <option value="">Select Specialization</option>
             <option value="Cardiologist">Cardiologist</option>
             <option value="Dermatologist">Dermatologist</option>
             <option value="Neurologist">Neurologist</option>
