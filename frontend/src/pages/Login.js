@@ -8,32 +8,39 @@ function Login() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("patient");
   const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
+      // ✅ ONLY ONE API CALL
       const res = await API.post("/auth/login", {
         email,
         password,
         role,
       });
 
+      // save data
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      alert("Login Successful!");
+      // success message
+      setSuccess("Login Successful!");
 
-      if (res.data.user.role === "doctor") {
-        navigate("/doctor");
-      } else if (res.data.user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/patient");
-      }
+      // redirect after 1 sec
+      setTimeout(() => {
+        if (res.data.user.role === "doctor") {
+          navigate("/doctor");
+        } else if (res.data.user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/patient");
+        }
+      }, 1000);
 
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      alert(err.response?.data?.message || "Login Failed");
     }
   };
 
@@ -45,8 +52,16 @@ function Login() {
           Welcome Back 👋
         </h2>
 
+        {/* Success Message */}
+        {success && (
+          <p className="text-green-600 text-center mb-3 font-medium">
+            {success}
+          </p>
+        )}
+
         {/* Role */}
         <select
+          value={role}
           onChange={(e) => setRole(e.target.value)}
           className="w-full p-2 mb-3 border rounded"
         >
@@ -59,6 +74,7 @@ function Login() {
         <input
           type="email"
           placeholder="Email"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 mb-3 border rounded"
         />
@@ -68,6 +84,7 @@ function Login() {
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-2 mb-3 border rounded"
           />
@@ -87,7 +104,7 @@ function Login() {
           Login
         </button>
 
-        {/* Register link */}
+        {/* Register */}
         <p className="text-center mt-4 text-sm">
           Don’t have an account?{" "}
           <span

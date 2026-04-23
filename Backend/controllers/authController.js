@@ -5,19 +5,21 @@ const jwt = require("jsonwebtoken");
 //register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, specialist } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
 
+    const cleanName = name.replace(/^dr\.?\s*/i, "");
 
     const user = await User.create({
-      name,
+      name: cleanName,
       email,
       password,
       role,
+      specialist: role === "doctor" ? specialist : undefined,
     });
 
     res.status(201).json({
@@ -29,6 +31,7 @@ const registerUser = async (req, res) => {
         role: user.role,
       },
     });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
