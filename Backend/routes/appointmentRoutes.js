@@ -21,6 +21,19 @@ router.post("/create", protect, async (req, res) => {
       return res.status(400).json({ message: "Invalid doctor" });
     }
 
+    const existingAppointment = await Appointment.findOne({
+      doctor,
+      date,
+      time,
+      status: { $ne: "rejected" },
+    });
+
+    if (existingAppointment) {
+      return res.status(400).json({
+        message: "This time slot is already booked",
+      });
+    }
+
     const appointment = await Appointment.create({
       patient: req.user._id,
       doctor,
@@ -41,10 +54,9 @@ router.post("/create", protect, async (req, res) => {
 router.get("/my", protect, async (req, res) => {
   try {
     const appointments = await Appointment.find({
-  patient: req.user._id,
-  status: { $in: ["pending", "confirmed", "rejected"] }
-})
-.populate("doctor", "name email specialization");
+      patient: req.user._id,
+      status: { $in: ["pending", "confirmed", "rejected", "completed"] },
+    }).populate("doctor", "name email specialization");
     res.json(appointments);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -91,7 +103,7 @@ router.put("/status/:id", protect, async (req, res) => {
     }
 
     // valid status check
-    const validStatus = ["pending", "confirmed", "rejected"];
+    const validStatus = ["pending", "confirmed", "rejected", "completed"];
     if (!validStatus.includes(req.body.status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
@@ -109,12 +121,48 @@ router.put("/status/:id", protect, async (req, res) => {
 router.get("/", protect, adminOnly, async (req, res) => {
   try {
     const appointments = await Appointment.find()
-      .populate("doctor", "name email")
+      .populate("doctor", "name email specialization")
       .populate("patient", "name email");
 
     res.json(appointments);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// RESCHEDULE APPOINTMENT
+router.put("/:id", protect, async (req, res) => {
+  try {
+    const { date, time } = req.body;
+
+    const appointment = await Appointment.findById(req.params.id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        message: "Appointment not found",
+      });
+    }
+
+    // only patient can reschedule
+    if (appointment.patient.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    appointment.date = date || appointment.date;
+    appointment.time = time || appointment.time;
+
+    await appointment.save();
+
+    res.json({
+      message: "Appointment rescheduled",
+      appointment,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
 });
 

@@ -7,7 +7,7 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password, role, specialization } = req.body;
 
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email});
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -29,6 +29,7 @@ const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        specialization: user.specialization,
       },
     });
 
@@ -67,6 +68,7 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        specialization: user.specialization, 
       },
     });
   } catch (error) {
