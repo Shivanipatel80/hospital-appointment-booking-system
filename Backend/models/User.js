@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema(
     specialization: {
       type: String, 
     },
+    consultFee: {
+  type: Number,
+  default: 0,
+},
   },
   { timestamps: true }
 );
