@@ -56,7 +56,7 @@ router.delete("/doctors/:id", async (req, res) => {
 // ADD DOCTOR (ADMIN)
 router.post("/doctors", protect, async (req, res) => {
   try {
-    const { name, email, phone, specialization, password } = req.body;
+    const { name, email, phone, specialization, password, consultFee } = req.body;
 
     // validation
     if (!name || !specialization || !password) {
@@ -68,6 +68,7 @@ router.post("/doctors", protect, async (req, res) => {
       email,
       phone,
       specialization,
+      consultFee,
       role: "doctor",
       password,
     });

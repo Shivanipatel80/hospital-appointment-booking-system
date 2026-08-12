@@ -5,9 +5,18 @@ const jwt = require("jsonwebtoken");
 //register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, specialization } = req.body;
+    const {
+      name,
+      email,
+      password,
+      role,
+      specialization,
+      phone,
+      consultFee,
+    } = req.body;
 
-    const userExists = await User.findOne({ email});
+    const userExists = await User.findOne({ email });
+
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -19,7 +28,9 @@ const registerUser = async (req, res) => {
       email,
       password,
       role,
+      phone,
       specialization: role === "doctor" ? specialization : undefined,
+      consultFee: role === "doctor" ? consultFee : undefined,
     });
 
     res.status(201).json({
@@ -29,10 +40,11 @@ const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
         specialization: user.specialization,
+        consultFee: user.consultFee,
       },
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

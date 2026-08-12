@@ -302,15 +302,12 @@ const StatCard = ({ label, value, icon, color }) => {
         {icon}
       </div>
       <div>
-        <p className="text-xs tracking-wide text-gray-400 uppercase">
-          {label}
-        </p>
+        <p className="text-xs tracking-wide text-gray-400 uppercase">{label}</p>
         <p className="text-2xl font-bold text-white mt-0.5">{value}</p>
       </div>
     </div>
   );
 };
- 
 
 // ─── Add Doctor Modal
 const AddDoctorModal = ({ onClose, onSave, editData }) => {
@@ -320,7 +317,7 @@ const AddDoctorModal = ({ onClose, onSave, editData }) => {
     email: editData?.email || "",
     phone: editData?.phone || "",
     experience: editData?.experience || "",
-    fee: editData?.fee || "",
+    consultFee: editData?.consultFee || "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
@@ -405,7 +402,11 @@ const AddDoctorModal = ({ onClose, onSave, editData }) => {
                 label: "Experience (years)",
                 placeholder: "5",
               },
-              { key: "fee", label: "Consultation Fee (₹)", placeholder: "500" },
+              {
+                key: "consultFee",
+                label: "Consultation Fee (₹)",
+                placeholder: "500",
+              },
               {
                 key: "password",
                 label: "Password *",
@@ -779,7 +780,7 @@ function AdminDashboard() {
           label="Cancelled"
           value={appointments.filter((a) => a.status === "rejected").length}
           icon={<Icon.X />}
-         color="linear-gradient(135deg,#991b1b,#dc2626)"
+          color="linear-gradient(135deg,#991b1b,#dc2626)"
         />
         <StatCard
           label="Today's"
@@ -814,13 +815,9 @@ function AdminDashboard() {
           }}
         >
           <div className="border-b border-slate-700 mb-4 pb-3">
-  <p className="font-bold text-white">
-    Appointments Overview
-  </p>
-  <p className="text-xs text-slate-400">
-    Status breakdown
-  </p>
-</div>
+            <p className="font-bold text-white">Appointments Overview</p>
+            <p className="text-xs text-slate-400">Status breakdown</p>
+          </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={chartData}>
               <XAxis
@@ -854,13 +851,9 @@ function AdminDashboard() {
           }}
         >
           <div className="mb-4 pb-3 border-b border-slate-700/50">
-  <p className="font-bold text-white">
-    Status Distribution
-  </p>
-  <p className="text-xs text-slate-400">
-    Pie chart
-  </p>
-</div>
+            <p className="font-bold text-white">Status Distribution</p>
+            <p className="text-xs text-slate-400">Pie chart</p>
+          </div>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie
@@ -1278,9 +1271,9 @@ function AdminDashboard() {
                       🏥 {doc.experience} years experience
                     </p>
                   )}
-                  {doc.fee && (
+                  {doc.consultFee !== undefined && doc.consultFee !== null && (
                     <p className="text-xs text-slate-400">
-                      💰 ₹{doc.fee} consultation fee
+                      💰 ₹{doc.consultFee} consultation fee
                     </p>
                   )}
                 </div>

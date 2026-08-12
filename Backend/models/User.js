@@ -27,14 +27,14 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     specialization: {
-      type: String, 
+      type: String,
     },
     consultFee: {
-  type: Number,
-  default: 0,
-},
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.pre("save", async function () {
@@ -43,6 +43,5 @@ userSchema.pre("save", async function () {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
-
 
 module.exports = mongoose.model("User", userSchema);
