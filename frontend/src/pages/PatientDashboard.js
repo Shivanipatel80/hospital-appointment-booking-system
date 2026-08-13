@@ -703,7 +703,6 @@ function PatientDashboard() {
             </div>
           </div>
         </header>
-
         <main
           className="flex-1 p-6 space-y-5"
           onClick={() => setShowNotif(false)}
@@ -854,8 +853,8 @@ function PatientDashboard() {
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
                     Select Date
                     {!doctorId && (
-                      <span className="ml-2 text-amber-500 normal-case font-normal text-xs">
-                        — select a doctor first
+                      <span className="ml-2 text-blue-400 normal-case font-normal text-xs">
+                        select a doctor first
                       </span>
                     )}
                   </label>
@@ -882,8 +881,8 @@ function PatientDashboard() {
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                     Available Time Slots
                     {!doctorId || !date ? (
-                      <span className="ml-2 text-amber-500 normal-case font-normal text-xs">
-                        — select doctor &amp; date first
+                      <span className="ml-2 text-blue-400 normal-case font-normal text-xs">
+                        select doctor &amp; date first
                       </span>
                     ) : (
                       date === todayStr && (
@@ -1020,7 +1019,7 @@ function PatientDashboard() {
                     No appointments scheduled
                   </p>
                   <p className="text-slate-500 text-sm mt-1">
-                    Enjoy your free time today ✨
+                    Enjoy your free time today
                   </p>
                   <button
                     onClick={() => setActiveTab("book")}
