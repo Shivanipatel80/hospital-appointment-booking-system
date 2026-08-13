@@ -426,6 +426,17 @@ function PatientDashboard() {
           ))}
           <span className="text-xs text-slate-500 ml-1.5">4.0 rating</span>
         </div>
+        <div className="flex flex-wrap items-center gap-3 mt-2">
+          {doctor?.phone && (
+            <span className="text-xs text-slate-400">📞 {doctor.phone}</span>
+          )}
+
+          {doctor?.consultFee !== undefined && doctor?.consultFee !== null && (
+            <span className="text-xs text-slate-400">
+              💰 ₹{doctor.consultFee} consultation fee
+            </span>
+          )}
+        </div>
       </div>
       <div className="flex-shrink-0">
         <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -918,35 +929,48 @@ function PatientDashboard() {
                 </div>
 
                 {/* Summary */}
+                {/* Summary */}
                 {doctorId && date && time && (
-                  <div className="mb-5 p-4 rounded-xl border border-blue-200 bg-blue-50">
-                    <p className="text-xs font-bold text-blue-800 uppercase tracking-wide mb-2">
+                  <div
+                    className="mb-5 p-4 rounded-xl"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #141b36 0%, #171f3d 100%)",
+                      border: "1px solid rgba(59,130,246,0.25)",
+                      boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+                    }}
+                  >
+                    <p className="text-xs font-bold text-blue-300 uppercase tracking-wide mb-3">
                       Appointment Summary
                     </p>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
+
+                    <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <span className="text-blue-600 text-xs">Doctor</span>
-                        <p className="font-semibold text-blue-900">
+                        <span className="text-slate-400 text-xs">Doctor</span>
+                        <p className="font-semibold text-white mt-0.5">
                           {getDoctorName(selectedDoctor)}
                         </p>
                       </div>
+
                       <div>
-                        <span className="text-blue-600 text-xs">
+                        <span className="text-slate-400 text-xs">
                           Specialization
                         </span>
-                        <p className="font-semibold text-blue-900">
+                        <p className="font-semibold text-white mt-0.5">
                           {selectedDoctor?.specialization || "General"}
                         </p>
                       </div>
+
                       <div>
-                        <span className="text-blue-600 text-xs">Date</span>
-                        <p className="font-semibold text-blue-900">
+                        <span className="text-slate-400 text-xs">Date</span>
+                        <p className="font-semibold text-white mt-0.5">
                           {formatDate(date)}
                         </p>
                       </div>
+
                       <div>
-                        <span className="text-blue-600 text-xs">Time</span>
-                        <p className="font-semibold text-blue-900">
+                        <span className="text-slate-400 text-xs">Time</span>
+                        <p className="font-semibold text-white mt-0.5">
                           {formatTime(time + ":00")}
                         </p>
                       </div>
