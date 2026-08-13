@@ -266,7 +266,6 @@ function PatientDashboard() {
     if (alreadyBooked) {
       return alert("This slot is already booked");
     }
-
     try {
       await API.put(`/appointments/${rescheduleAppt._id}`, {
         date: rescheduleDate,
@@ -328,7 +327,6 @@ function PatientDashboard() {
   const todayStr = new Date().toISOString().split("T")[0];
   const now = new Date();
   const currentTimeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-
   const isSlotDisabled = (slot) => {
     if (!doctorId || !date) return true; // 👈 yeh line badli/add hui
     if (date === todayStr && slot <= currentTimeStr) return true;
@@ -340,7 +338,6 @@ function PatientDashboard() {
         a.status !== "rejected",
     );
   };
-
   const selectedDoctor = filteredDoctors.find((d) => d._id === doctorId);
 
   const avatarColors = [
@@ -446,7 +443,6 @@ function PatientDashboard() {
       </div>
     </div>
   );
-
   const AppointmentSlip = ({ appt }) => (
     <div ref={slipRef}>
       <div className="header">
@@ -487,7 +483,6 @@ function PatientDashboard() {
       </div>
     </div>
   );
-
   const navItems = [
     {
       key: "book",
@@ -503,7 +498,6 @@ function PatientDashboard() {
     },
     { key: "history", label: "History", icon: <FaListAlt />, badge: 0 },
   ];
-
   return (
     <div className="min-h-screen flex" style={{ background: "#070b1d" }}>
       {/* ── SIDEBAR ── */}
@@ -525,7 +519,6 @@ function PatientDashboard() {
             </div>
           </div>
         </div>
-
         <div
           className="px-5 py-3.5 border-b"
           style={{ borderColor: "rgba(255,255,255,0.07)" }}
@@ -543,7 +536,6 @@ function PatientDashboard() {
             </div>
           </div>
         </div>
-
         <nav className="flex-1 px-3 py-3 space-y-0.5">
           {navItems.map((item) => (
             <button
@@ -568,7 +560,6 @@ function PatientDashboard() {
             </button>
           ))}
         </nav>
-
         <div
           className="px-3 py-3 border-t"
           style={{ borderColor: "rgba(255,255,255,0.07)" }}
@@ -618,7 +609,6 @@ function PatientDashboard() {
                   </span>
                 )}
               </button>
-
               {showNotif && (
                 <div
                   className="absolute right-0 mt-2 w-80 rounded-2xl shadow-2xl border z-50 overflow-hidden"
@@ -652,7 +642,6 @@ function PatientDashboard() {
                       </button>
                     </div>
                   </div>
-
                   <div
                     className="max-h-72 overflow-y-auto divide-y"
                     style={{ borderColor: "rgba(255,255,255,0.06)" }}
