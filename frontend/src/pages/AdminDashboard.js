@@ -662,11 +662,14 @@ function AdminDashboard() {
   };
 
   const deleteAppointment = async (id) => {
-    if (!window.confirm("Appointment delete karein?")) return;
+    if (!window.confirm("Are you sure you want to delete this appointment?"))
+      return;
+
     try {
       await API.delete(`/appointments/${id}`);
       fetchAppointments();
-    } catch {
+    } catch (error) {
+      console.log("DELETE ERROR:", error.response?.data || error.message);
       alert("Delete failed");
     }
   };

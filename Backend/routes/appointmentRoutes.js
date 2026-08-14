@@ -130,6 +130,29 @@ router.get("/", protect, adminOnly, async (req, res) => {
   }
 });
 
+// ADMIN - DELETE APPOINTMENT
+router.delete("/:id", protect, adminOnly, async (req, res) => {
+  try {
+    const appointment = await Appointment.findById(req.params.id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        message: "Appointment not found",
+      });
+    }
+
+    await Appointment.findByIdAndDelete(req.params.id);
+
+    res.json({
+      message: "Appointment deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
 // RESCHEDULE APPOINTMENT
 router.put("/:id", protect, async (req, res) => {
   try {
