@@ -511,10 +511,14 @@ function DoctorDashboard() {
 
   const updateStatus = async (id, status) => {
     try {
-      await API.put(`/appointments/status/${id}`, { status });
-      fetchAppointments();
+      const response = await API.put(`/appointments/status/${id}`, { status });
+      console.log("Status updated:", response.data);
+      await fetchAppointments();
     } catch (err) {
-      console.error(err);
+      console.error("Status update failed:", err);
+      alert(
+        err?.response?.data?.message || "Failed to update appointment status",
+      );
     }
   };
 
@@ -541,6 +545,7 @@ function DoctorDashboard() {
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   const pendingAppts = appointments.filter((a) => a.status === "pending");
+  const completedAppts = appointments.filter((a) => a.status === "completed");
 
   const uniquePatients = (() => {
     const seen = new Set();
@@ -604,7 +609,7 @@ function DoctorDashboard() {
   const renderToday = () => (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           label="Today's"
           value={todayAppts.length}
@@ -622,6 +627,12 @@ function DoctorDashboard() {
           value={pendingAppts.length}
           icon={<Icon.Pending />}
           accent="#f59e0b"
+        />
+        <StatCard
+          label="Completed"
+          value={completedAppts.length}
+          icon={<Icon.Completed />}
+          accent="#22c55e"
         />
         <StatCard
           label="Total Appointments"
@@ -787,7 +798,10 @@ function DoctorDashboard() {
                       ) : (
                         <div className="flex items-center gap-2">
                           <span className="text-slate-600 text-sm">
-                            {a.status === "rejected" ? "Cancelled" : a.status.charAt(0).toUpperCase() + a.status.slice(1)}
+                            {a.status === "rejected"
+                              ? "Cancelled"
+                              : a.status.charAt(0).toUpperCase() +
+                                a.status.slice(1)}
                           </span>
 
                           <button
@@ -914,22 +928,22 @@ function DoctorDashboard() {
 
       {pendingAppts.length === 0 ? (
         <div
-    className="rounded-2xl text-center py-16"
-    style={{
-      background: "#1a1d2e",
-      border: "1px solid rgba(255,255,255,0.07)",
-    }}
-  >
-    <div className="text-emerald-500 mb-3 flex items-center justify-center">
-      <div style={{ transform: "scale(3)" }}>
-        <Icon.CheckCircle />
-      </div>
-    </div>
+          className="rounded-2xl text-center py-16"
+          style={{
+            background: "#1a1d2e",
+            border: "1px solid rgba(255,255,255,0.07)",
+          }}
+        >
+          <div className="text-emerald-500 mb-3 flex items-center justify-center">
+            <div style={{ transform: "scale(3)" }}>
+              <Icon.CheckCircle />
+            </div>
+          </div>
 
-    <p className="text-slate-400 font-semibold">
-      You're all caught up! No pending requests
-    </p>
-  </div>
+          <p className="text-slate-400 font-semibold">
+            You're all caught up! No pending requests
+          </p>
+        </div>
       ) : (
         <div className="space-y-3">
           {pendingAppts.map((a) => (
