@@ -631,7 +631,7 @@ function DoctorDashboard() {
         <StatCard
           label="Completed"
           value={completedAppts.length}
-          icon={<Icon.Completed />}
+          icon={<Icon.CheckCircle />}
           accent="#22c55e"
         />
         <StatCard
