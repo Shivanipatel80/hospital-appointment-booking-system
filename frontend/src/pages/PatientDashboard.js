@@ -708,80 +708,84 @@ function PatientDashboard() {
           onClick={() => setShowNotif(false)}
         >
           {/* ── STATS ── */}
-<div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-  {[
-    {
-      label: "Total Appointments",
-      value: appointments.length,
-      icon: <FaListAlt />,
-      color: "#3b82f6",
-    },
-    {
-      label: "Confirmed",
-      value: appointments.filter((a) => a.status === "confirmed").length,
-      icon: <FaCheckCircle />,
-      color: "#10b981",
-    },
-    {
-      label: "Pending",
-      value: appointments.filter((a) => a.status === "pending").length,
-      icon: <FaClock />,
-      color: "#f59e0b",
-    },
-    {
-      label: "Cancelled",
-      value: appointments.filter((a) => a.status === "rejected").length,
-      icon: <FaTimesCircle />,
-      color: "#ef4444",
-    },
-    {
-      label: "Completed",
-      value: appointments.filter((a) => a.status === "completed").length,
-      icon: <FaCheckCircle />,
-      color: "#10b981",
-    },
-  ].map((s, i) => (
-    <div
-      key={i}
-      className="relative rounded-2xl p-5 border overflow-hidden flex items-center gap-4 transition-all hover:-translate-y-1 group"
-      style={{
-        background:
-          "linear-gradient(135deg, #12182f 0%, #141a33 100%)",
-        borderColor: `${s.color}33`,
-      }}
-    >
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{
-          background: `radial-gradient(circle at top right, ${s.color}22, transparent 70%)`,
-        }}
-      />
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {[
+              {
+                label: "Total Appointments",
+                value: appointments.length,
+                icon: <FaListAlt />,
+                color: "#3b82f6",
+              },
+              {
+                label: "Confirmed",
+                value: appointments.filter((a) => a.status === "confirmed")
+                  .length,
+                icon: <FaCheckCircle />,
+                color: "#10b981",
+              },
+              {
+                label: "Pending",
+                value: appointments.filter((a) => a.status === "pending")
+                  .length,
+                icon: <FaClock />,
+                color: "#f59e0b",
+              },
+              {
+                label: "Cancelled",
+                value: appointments.filter((a) => a.status === "rejected")
+                  .length,
+                icon: <FaTimesCircle />,
+                color: "#ef4444",
+              },
+              {
+                label: "Completed",
+                value: appointments.filter((a) => a.status === "completed")
+                  .length,
+                icon: <FaCheckCircle />,
+                color: "#10b981",
+              },
+            ].map((s, i) => (
+              <div
+                key={i}
+                className="relative rounded-2xl p-5 border overflow-hidden flex items-center gap-4 transition-all hover:-translate-y-1 group"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #12182f 0%, #141a33 100%)",
+                  borderColor: `${s.color}33`,
+                }}
+              >
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background: `radial-gradient(circle at top right, ${s.color}22, transparent 70%)`,
+                  }}
+                />
 
-      <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-base flex-shrink-0 relative z-10"
-        style={{
-          background: `linear-gradient(135deg, ${s.color}, ${s.color}cc)`,
-          boxShadow: `0 4px 14px ${s.color}40`,
-        }}
-      >
-        {s.icon}
-      </div>
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-base flex-shrink-0 relative z-10"
+                  style={{
+                    background: `linear-gradient(135deg, ${s.color}, ${s.color}cc)`,
+                    boxShadow: `0 4px 14px ${s.color}40`,
+                  }}
+                >
+                  {s.icon}
+                </div>
 
-      <div className="relative z-10 min-w-0">
-        <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider truncate">
-          {s.label}
-        </p>
+                <div className="relative z-10 min-w-0">
+                  <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider truncate">
+                    {s.label}
+                  </p>
 
-        <p
-          className="text-3xl font-semibold mt-0.5"
-          style={{ color: s.color }}
-        >
-          {s.value}
-        </p>
-      </div>
-    </div>
-  ))}
-</div>
+                  <p
+                    className="text-3xl font-semibold mt-0.5"
+                    style={{ color: s.color }}
+                  >
+                    {s.value}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
           {/* ── BOOK APPOINTMENT ── */}
           {activeTab === "book" && (
             <div

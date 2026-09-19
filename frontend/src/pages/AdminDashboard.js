@@ -778,11 +778,11 @@ function AdminDashboard() {
           color="linear-gradient(135deg,#065f46,#10b981)"
         />
         <StatCard
-  label="Completed"
-  value={appointments.filter((a) => a.status === "completed").length}
-  icon={<Icon.Check />}
-  color="linear-gradient(135deg,#075985,#0ea5e9)"
-/>
+          label="Completed"
+          value={appointments.filter((a) => a.status === "completed").length}
+          icon={<Icon.Check />}
+          color="linear-gradient(135deg,#075985,#0ea5e9)"
+        />
         <StatCard
           label="Pending"
           value={appointments.filter((a) => a.status === "pending").length}
@@ -1364,21 +1364,29 @@ function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex gap-2 flex-wrap">
-  {/* Total Appointments */}
-  <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-lg border border-purple-500/30">
-    {patientAppts.length} appointments
-  </span>
+                  {/* Total Appointments */}
+                  <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-lg border border-purple-500/30">
+                    {patientAppts.length} appointments
+                  </span>
 
-  {/* Confirmed */}
-  <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-lg border border-emerald-500/30">
-    {patientAppts.filter((a) => a.status === "confirmed").length} confirmed
-  </span>
+                  {/* Confirmed */}
+                  <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-lg border border-emerald-500/30">
+                    {
+                      patientAppts.filter((a) => a.status === "confirmed")
+                        .length
+                    }{" "}
+                    confirmed
+                  </span>
 
-  {/* Completed */}
-  <span className="text-xs bg-sky-500/20 text-sky-400 px-2 py-1 rounded-lg border border-sky-500/30">
-    {patientAppts.filter((a) => a.status === "completed").length} completed
-  </span>
-</div>
+                  {/* Completed */}
+                  <span className="text-xs bg-sky-500/20 text-sky-400 px-2 py-1 rounded-lg border border-sky-500/30">
+                    {
+                      patientAppts.filter((a) => a.status === "completed")
+                        .length
+                    }{" "}
+                    completed
+                  </span>
+                </div>
               </div>
             );
           })}
