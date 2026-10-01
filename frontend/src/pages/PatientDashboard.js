@@ -19,6 +19,10 @@ import {
   FaRedo,
   FaChevronLeft,
   FaChevronRight,
+  FaMagic,
+  FaUserMd,
+  FaExclamationTriangle,
+  FaArrowRight,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -58,6 +62,13 @@ function PatientDashboard() {
   const [rescheduleAppt, setRescheduleAppt] = useState(null);
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [rescheduleTime, setRescheduleTime] = useState("");
+
+  // AI Doctor Finder
+  const [symptoms, setSymptoms] = useState("");
+  const [aiResult, setAiResult] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
   const slipRef = useRef(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -219,6 +230,31 @@ function PatientDashboard() {
     currentPage * ITEMS_PER_PAGE,
   );
 
+  // ── AI Doctor Finder handlers ──
+  const suggestSpecialty = async () => {
+    setAiLoading(true);
+    setAiError("");
+    setAiResult(null);
+    try {
+      const res = await API.post("/ai/suggest-specialty", { symptoms });
+      setAiResult(res.data);
+    } catch (err) {
+      console.error(err.response?.data || err);
+      setAiError(
+        err.response?.status === 503
+          ? "The AI is busy right now. Please try again in a minute."
+          : "Couldn't get a suggestion. Please try again.",
+      );
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const applySuggestion = () => {
+    setFilter(aiResult.specialization);
+    setDoctorId("");
+  };
+
   const bookAppointment = async () => {
     if (!doctorId || !date || !time) return alert("Please fill all fields");
     try {
@@ -328,7 +364,7 @@ function PatientDashboard() {
   const now = new Date();
   const currentTimeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   const isSlotDisabled = (slot) => {
-    if (!doctorId || !date) return true; // 👈 yeh line badli/add hui
+    if (!doctorId || !date) return true;
     if (date === todayStr && slot <= currentTimeStr) return true;
     return appointments.some(
       (a) =>
@@ -814,173 +850,354 @@ function PatientDashboard() {
                   </p>
                 </div>
               </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                      Specialization
-                    </label>
-                    <select
-                      onChange={(e) => {
-                        setFilter(e.target.value);
-                        setDoctorId("");
-                      }}
-                      className="w-full px-3 py-2.5 border border-slate-700 rounded-lg text-sm text-white bg-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                    >
-                      <option value="All">All Specializations</option>
 
-                      {SPECIALIZATIONS.map((spec) => (
-                        <option key={spec} value={spec}>
-                          {spec}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                      Select Doctor
-                    </label>
-                    <select
-                      value={doctorId}
-                      onChange={(e) => setDoctorId(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-slate-700 rounded-lg text-sm text-white bg-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                    >
-                      <option value="">Select Doctor</option>
-                      {filteredDoctors.map((d) => (
-                        <option key={d._id} value={d._id}>
-                          {getDoctorName(d)} — {d.specialization || "General"}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+              <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* ── LEFT: BOOKING FORM ── */}
+                <div className="order-2 lg:order-1 lg:col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                        Specialization
+                      </label>
+                      <select
+                        value={filter}
+                        onChange={(e) => {
+                          setFilter(e.target.value);
+                          setDoctorId("");
+                        }}
+                        className="w-full px-3 py-2.5 border border-slate-700 rounded-lg text-sm text-white bg-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                      >
+                        <option value="All">All Specializations</option>
 
-                {/* Doctor Card */}
-                {selectedDoctor && <DoctorCard doctor={selectedDoctor} />}
-
-                <div className="mb-5">
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                    Select Date
-                    {!doctorId && (
-                      <span className="ml-2 text-blue-400 normal-case font-normal text-xs">
-                        select a doctor first
-                      </span>
-                    )}
-                  </label>
-                  <div className="relative max-w-xs">
-                    <input
-                      type="date"
-                      value={date}
-                      min={todayStr}
-                      disabled={!doctorId}
-                      onChange={(e) => {
-                        setDate(e.target.value);
-                        setTime("");
-                      }}
-                      className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-9 transition ${
-                        !doctorId
-                          ? "bg-[#0c1226] border-slate-800 text-slate-600 cursor-not-allowed"
-                          : "bg-[#0f172a] border-slate-700 text-white [color-scheme:dark]"
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-5">
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Available Time Slots
-                    {!doctorId || !date ? (
-                      <span className="ml-2 text-blue-400 normal-case font-normal text-xs">
-                        select doctor &amp; date first
-                      </span>
-                    ) : (
-                      date === todayStr && (
-                        <span className="ml-2 text-amber-600 normal-case font-normal text-xs">
-                          — past slots unavailable
-                        </span>
-                      )
-                    )}
-                  </label>
-                  <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                    {timeSlots.map((t) => {
-                      const disabled = isSlotDisabled(t);
-                      const selected = time === t;
-                      return (
-                        <button
-                          key={t}
-                          onClick={() => !disabled && setTime(t)}
-                          disabled={disabled}
-                          className={`py-2.5 rounded-lg text-xs font-medium border transition-all ${
-                            selected
-                              ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg scale-105"
-                              : disabled
-                                ? "bg-[#1a2238] text-slate-600 border-slate-800 cursor-not-allowed line-through"
-                                : "bg-[#0f172a] text-slate-300 border-slate-700 hover:border-cyan-400 hover:text-cyan-300 hover:bg-[#172036]"
-                          }`}
-                        >
-                          {formatTime(t + ":00")}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Summary */}
-                {/* Summary */}
-                {doctorId && date && time && (
-                  <div
-                    className="mb-5 p-4 rounded-xl"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #141b36 0%, #171f3d 100%)",
-                      border: "1px solid rgba(59,130,246,0.25)",
-                      boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
-                    }}
-                  >
-                    <p className="text-xs font-bold text-blue-300 uppercase tracking-wide mb-3">
-                      Appointment Summary
-                    </p>
-
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <span className="text-slate-400 text-xs">Doctor</span>
-                        <p className="font-semibold text-white mt-0.5">
-                          {getDoctorName(selectedDoctor)}
-                        </p>
-                      </div>
-
-                      <div>
-                        <span className="text-slate-400 text-xs">
-                          Specialization
-                        </span>
-                        <p className="font-semibold text-white mt-0.5">
-                          {selectedDoctor?.specialization || "General"}
-                        </p>
-                      </div>
-
-                      <div>
-                        <span className="text-slate-400 text-xs">Date</span>
-                        <p className="font-semibold text-white mt-0.5">
-                          {formatDate(date)}
-                        </p>
-                      </div>
-
-                      <div>
-                        <span className="text-slate-400 text-xs">Time</span>
-                        <p className="font-semibold text-white mt-0.5">
-                          {formatTime(time + ":00")}
-                        </p>
-                      </div>
+                        {SPECIALIZATIONS.map((spec) => (
+                          <option key={spec} value={spec}>
+                            {spec}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                        Select Doctor
+                      </label>
+                      <select
+                        value={doctorId}
+                        onChange={(e) => setDoctorId(e.target.value)}
+                        className="w-full px-3 py-2.5 border border-slate-700 rounded-lg text-sm text-white bg-[#0f172a] focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                      >
+                        <option value="">Select Doctor</option>
+                        {filteredDoctors.map((d) => (
+                          <option key={d._id} value={d._id}>
+                            {getDoctorName(d)} — {d.specialization || "General"}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
-                )}
 
-                <button
-                  onClick={bookAppointment}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-sm font-semibold transition shadow-sm"
-                >
-                  Confirm Booking →
-                </button>
+                  {/* Doctor Card */}
+                  {selectedDoctor && <DoctorCard doctor={selectedDoctor} />}
+
+                  <div className="mb-5">
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                      Select Date
+                      {!doctorId && (
+                        <span className="ml-2 text-blue-400 normal-case font-normal text-xs">
+                          select a doctor first
+                        </span>
+                      )}
+                    </label>
+                    <div className="relative max-w-xs">
+                      <input
+                        type="date"
+                        value={date}
+                        min={todayStr}
+                        disabled={!doctorId}
+                        onChange={(e) => {
+                          setDate(e.target.value);
+                          setTime("");
+                        }}
+                        className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-9 transition ${
+                          !doctorId
+                            ? "bg-[#0c1226] border-slate-800 text-slate-600 cursor-not-allowed"
+                            : "bg-[#0f172a] border-slate-700 text-white [color-scheme:dark]"
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-5">
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                      Available Time Slots
+                      {!doctorId || !date ? (
+                        <span className="ml-2 text-blue-400 normal-case font-normal text-xs">
+                          select doctor &amp; date first
+                        </span>
+                      ) : (
+                        date === todayStr && (
+                          <span className="ml-2 text-amber-600 normal-case font-normal text-xs">
+                            — past slots unavailable
+                          </span>
+                        )
+                      )}
+                    </label>
+                    <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                      {timeSlots.map((t) => {
+                        const disabled = isSlotDisabled(t);
+                        const selected = time === t;
+                        return (
+                          <button
+                            key={t}
+                            onClick={() => !disabled && setTime(t)}
+                            disabled={disabled}
+                            className={`py-2.5 rounded-lg text-xs font-medium border transition-all ${
+                              selected
+                                ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400 shadow-lg scale-105"
+                                : disabled
+                                  ? "bg-[#1a2238] text-slate-600 border-slate-800 cursor-not-allowed line-through"
+                                  : "bg-[#0f172a] text-slate-300 border-slate-700 hover:border-cyan-400 hover:text-cyan-300 hover:bg-[#172036]"
+                            }`}
+                          >
+                            {formatTime(t + ":00")}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Summary */}
+                  {doctorId && date && time && (
+                    <div
+                      className="mb-5 p-4 rounded-xl"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #141b36 0%, #171f3d 100%)",
+                        border: "1px solid rgba(59,130,246,0.25)",
+                        boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+                      }}
+                    >
+                      <p className="text-xs font-bold text-blue-300 uppercase tracking-wide mb-3">
+                        Appointment Summary
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-slate-400 text-xs">Doctor</span>
+                          <p className="font-semibold text-white mt-0.5">
+                            {getDoctorName(selectedDoctor)}
+                          </p>
+                        </div>
+
+                        <div>
+                          <span className="text-slate-400 text-xs">
+                            Specialization
+                          </span>
+                          <p className="font-semibold text-white mt-0.5">
+                            {selectedDoctor?.specialization || "General"}
+                          </p>
+                        </div>
+
+                        <div>
+                          <span className="text-slate-400 text-xs">Date</span>
+                          <p className="font-semibold text-white mt-0.5">
+                            {formatDate(date)}
+                          </p>
+                        </div>
+
+                        <div>
+                          <span className="text-slate-400 text-xs">Time</span>
+                          <p className="font-semibold text-white mt-0.5">
+                            {formatTime(time + ":00")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={bookAppointment}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-sm font-semibold transition shadow-sm"
+                  >
+                    Confirm Booking →
+                  </button>
+                </div>
+
+                {/* ── RIGHT: AI DOCTOR FINDER ── */}
+                <aside className="order-1 lg:order-2 lg:col-span-1 lg:sticky lg:top-24 self-start">
+                  <div
+                    className="rounded-2xl p-[1px]"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #6366f1, #3b82f6, #22d3ee)",
+                    }}
+                  >
+                    <div
+                      className="relative overflow-hidden rounded-2xl p-5"
+                      style={{ background: "#0d1330" }}
+                    >
+                      <div
+                        className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-30 blur-3xl"
+                        style={{ background: "#6366f1" }}
+                      />
+
+                      {/* Header */}
+                      <div className="relative flex items-start gap-3 mb-4">
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #6366f1, #3b82f6)",
+                            boxShadow: "0 4px 16px rgba(99,102,241,0.45)",
+                          }}
+                        >
+                          <FaMagic />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-semibold text-white">
+                              AI Doctor Finder
+                            </h4>
+                            <span className="text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                              AI
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            Describe your symptoms and we'll suggest the right
+                            specialist.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Input */}
+                      <div className="relative">
+                        <textarea
+                          rows={4}
+                          maxLength={500}
+                          value={symptoms}
+                          onChange={(e) => setSymptoms(e.target.value)}
+                          placeholder="e.g. I've had a headache and dizziness for two days"
+                          className="w-full px-3 py-2.5 pb-6 border border-slate-700 rounded-xl text-sm text-white bg-[#0f172a] placeholder-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <span className="absolute bottom-2 right-3 text-[10px] text-slate-500">
+                          {symptoms.length}/500
+                        </span>
+                      </div>
+
+                      {/* Example chips */}
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {[
+                          "Headache and dizziness",
+                          "Skin rash and itching",
+                          "Knee pain",
+                          "Child has a fever",
+                          "Stomach ache",
+                        ].map((ex) => (
+                          <button
+                            key={ex}
+                            onClick={() => setSymptoms(ex)}
+                            className="text-[11px] px-2.5 py-1 rounded-full border border-slate-700 text-slate-400 hover:text-white hover:border-indigo-400 transition"
+                          >
+                            {ex}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Button */}
+                      <button
+                        onClick={suggestSpecialty}
+                        disabled={aiLoading || !symptoms.trim()}
+                        className="mt-4 w-full flex items-center justify-center gap-2 text-white py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-50"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #6366f1, #3b82f6)",
+                        }}
+                      >
+                        {aiLoading ? (
+                          <>
+                            <span className="inline-block w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <FaMagic className="text-xs" /> Find my specialist
+                          </>
+                        )}
+                      </button>
+
+                      {aiError && (
+                        <p className="mt-3 text-xs text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg p-2.5">
+                          {aiError}
+                        </p>
+                      )}
+
+                      {/* Result */}
+                      {aiResult && (
+                        <div className="mt-4 space-y-3">
+                          {aiResult.urgent && (
+                            <div className="flex items-start gap-3 p-3 rounded-xl border border-red-500/40 bg-red-500/10">
+                              <FaExclamationTriangle className="text-red-400 mt-0.5 flex-shrink-0" />
+                              <p className="text-xs text-red-300 leading-relaxed">
+                                <b>This could be an emergency.</b> Don't wait
+                                for an appointment. Go to the nearest hospital
+                                or call your local emergency number now.
+                              </p>
+                            </div>
+                          )}
+
+                          <div
+                            className="p-3 rounded-xl border"
+                            style={{
+                              background: "#0f172a",
+                              borderColor: "rgba(99,102,241,0.3)",
+                            }}
+                          >
+                            <p className="flex items-center gap-1.5 text-[10px] text-indigo-300 uppercase tracking-wider font-semibold mb-2">
+                              <FaMagic className="text-[9px]" /> AI suggestion
+                            </p>
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-blue-500/15 text-blue-400 flex items-center justify-center flex-shrink-0">
+                                <FaUserMd />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-white">
+                                  {aiResult.specialization}
+                                </p>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                  {aiResult.reason}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={applySuggestion}
+                              disabled={filter === aiResult.specialization}
+                              className="mt-3 w-full flex items-center justify-center gap-1.5 text-xs font-medium text-blue-300 border border-blue-500/30 hover:bg-blue-500/10 px-3 py-2 rounded-lg transition disabled:opacity-60 disabled:cursor-default disabled:hover:bg-transparent"
+                            >
+                              {filter === aiResult.specialization ? (
+                                "Selected ✓"
+                              ) : (
+                                <>
+                                  Show {aiResult.specialization} doctors{" "}
+                                  <FaArrowRight className="text-[10px]" />
+                                </>
+                              )}
+                            </button>
+                            {aiResult.fallback && (
+                              <p className="mt-2 text-[11px] text-amber-300">
+                                The AI is busy, so this suggestion is based on
+                                keywords.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <p className="relative mt-4 text-[11px] text-slate-500 leading-relaxed">
+                        AI suggestions are general guidance, not a medical
+                        diagnosis.
+                      </p>
+                    </div>
+                  </div>
+                </aside>
               </div>
             </div>
           )}
